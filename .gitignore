@@ -1,0 +1,15 @@
+*.o
+*.out
+*.exe
+build/
+bin/
+
+.vscode/
+.idea/
+*.swp
+*.swo
+
+.DS_Store
+Thumbs.db
+
+*.log
