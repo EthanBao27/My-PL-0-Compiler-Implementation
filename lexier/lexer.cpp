@@ -4,240 +4,362 @@ void error(int n){
     printf("Error %3d: %s\n", n, err_msg[n]);
 }
 
-
 /**
- * @brief PL/0词法分析器：DFA实现
- * 
+ * @brief 
+ * PL/0词法分析器：DFA实现
  * @param sourceCode 
- * @return vector<pair<string,string>> 
+ * @return vjector<pair<string, string>> 
  */
-vector<pair<string,string>> lexer(const string &sourceCode){
+vector<pair<string, string>> lexer(const string &sourceCode)
+{
     // 结果记录
     vector<pair<string, string>> tokens;
 
-    int cur_num=0;    // 识别中的数字
-    int cur_num_len = 0;    // 识别中数字的长度
-    char cur_token[MAXIDLEN + 1];   //识别中的标识符or关键字
-    int cur_token_index = 0;    // 识别中标识符or关键字的下标
+    // --- 添加行号和列号跟踪变量 ---
+    int currentLine = 1;
+    int currentColumn = 1;
+    int tokenStartLine = 1;
+    int tokenStartColumn = 1;
+    // --- 行号列号变量结束 ---
+
+    int cur_num = 0;                    // 识别中的数字
+    int cur_num_len = 0;                // 识别中数字的长度
+    char cur_token[MAXIDLEN + 1];       // 识别中的标识符or关键字
+    int cur_token_index = 0;            // 识别中标识符or关键字的下标
+    memset(cur_token, 0, MAXIDLEN + 1); // 初始化
+
+    currentState = START; // 确保每次调用 lexer 时状态重置
 
     // 按字符读取源程序
-    for (size_t i = 0; i < sourceCode.size();i++)
+    for (size_t i = 0; i < sourceCode.size(); /* i 在循环内部或回退时管理 */)
     {
-        // 大小写不敏感
-        char c = tolower(sourceCode[i]);
+        char raw_c = sourceCode[i]; // 获取原始字符
+        char c = tolower(raw_c);    // 转小写用于逻辑判断
 
-        // cout << "目前读取字符：" << c << endl;
+        // --- 记录 Token 起始位置 ---
+        if (currentState == START && !(isspace(raw_c) || raw_c == '{'))
+        {
+            tokenStartLine = currentLine;
+            tokenStartColumn = currentColumn;
+        }
+        // --- Token 起始位置记录结束 ---
 
-        // 状态转移
+        // 状态转移 (保持原有逻辑)
         switch (currentState)
         {
-        // 默认状态
         case START:
-            if(c==' '||c=='\t'||c=='\r'||c=='\n'){
-                // 跳过空格，缩进，换行
-            }else if(c=='{'){
-                // 注释
+            if (isspace(raw_c))
+            { /* 跳过 */
+            }
+            else if (raw_c == '{')
+            {
                 currentState = COMMENT;
             }
-            else if (isdigit(c)) {
-                // 转换为数字
+            else if (isdigit(c))
+            {
                 currentState = INNUM;
-                // 读到下一个数字，上一位进位
-                cur_num = cur_num * 10 + c - '0';
-                cur_num_len++;
-            }else if(isalpha(c)){
-                // 是字母,进入标识符或关键字识别
+                cur_num = c - '0';
+                cur_num_len = 1;
+            }
+            else if (isalpha(c))
+            {
                 currentState = INID;
-                // 越界异常
-                if(cur_token_index>MAXIDLEN){
-                    error(26);
+                cleanTokenMem(cur_token, cur_token_index);
+                if (cur_token_index < MAXIDLEN)
+                {
+                    cur_token[cur_token_index++] = c;
+                }
+                else
+                {
+                    error(26); /* 处理错误，可能需要跳过 */
                     exit(1);
                 }
-                // 保存
-                cur_token[cur_token_index] = c;
-                cur_token_index++;
             }
-            else if(c==':')
+            else if (c == ':')
+            {
                 currentState = INBECOMES;
-            else if(c=='>')
+            }
+            else if (c == '>')
+            {
                 currentState = GTR;
-            else if(c=='<')
+            }
+            else if (c == '<')
+            {
                 currentState = LES;
-            // 如果是单字符的运算符
-            else if(isSingleOperator(c)){
+            }
+            else if (isSingleOperator(c))
+            {
                 currentState = START;
                 string sym(1, c);
-                tokens.push_back(make_pair(operators.find(sym)->second,sym));
+                string type = operators.find(sym)->second;
+                // --- 打印信息 ---
+                cout << "Token: (" << type << ", " << sym << ") at Line " << tokenStartLine << ", Col " << tokenStartColumn << endl;
+                tokens.push_back(make_pair(type, sym));
             }
-            // 是逗号分隔符
-            else if(c==','){
+            else if (c == ',')
+            {
                 currentState = START;
-                tokens.push_back(make_pair(delimiters.find(",")->second, ","));
+                string type = delimiters.find(",")->second;
+                // --- 打印信息 ---
+                cout << "Token: (" << type << ", " << "," << ") at Line " << tokenStartLine << ", Col " << tokenStartColumn << endl;
+                tokens.push_back(make_pair(type, ","));
             }
-            // 是分号分隔符
             else if (c == ';')
             {
                 currentState = START;
-                tokens.push_back(make_pair(delimiters.find(";")->second, ";"));
+                string type = delimiters.find(";")->second;
+                // --- 打印信息 ---
+                cout << "Token: (" << type << ", " << ";" << ") at Line " << tokenStartLine << ", Col " << tokenStartColumn << endl;
+                tokens.push_back(make_pair(type, ";"));
             }
-            // 是等于号
-            else if(c=='='){
+            else if (c == '=')
+            {
                 currentState = START;
-                tokens.push_back(make_pair(operators.find("=")->second, "="));
+                string type = operators.find("=")->second;
+                // --- 打印信息 ---
+                cout << "Token: (" << type << ", " << "=" << ") at Line " << tokenStartLine << ", Col " << tokenStartColumn << endl;
+                tokens.push_back(make_pair(type, "="));
             }
-            // 是左括号
-            else if(c=='('){
+            else if (c == '(')
+            {
                 currentState = START;
-                tokens.push_back(make_pair(delimiters.find("(")->second, "("));
+                string type = delimiters.find("(")->second;
+                // --- 打印信息 ---
+                cout << "Token: (" << type << ", " << "(" << ") at Line " << tokenStartLine << ", Col " << tokenStartColumn << endl;
+                tokens.push_back(make_pair(type, "("));
             }
-            // 是右括号
-            else if(c==')'){
+            else if (c == ')')
+            {
                 currentState = START;
-                tokens.push_back(make_pair(delimiters.find(")")->second, ")"));
+                string type = delimiters.find(")")->second;
+                // --- 打印信息 ---
+                cout << "Token: (" << type << ", " << ")" << ") at Line " << tokenStartLine << ", Col " << tokenStartColumn << endl;
+                tokens.push_back(make_pair(type, ")"));
+            }
+            // --- 添加对句点的处理 ---
+            else if (c == '.')
+            {
+                currentState = START;
+                string type = delimiters.find(".")->second;
+                // --- 打印信息 ---
+                cout << "Token: (" << type << ", " << "." << ") at Line " << tokenStartLine << ", Col " << tokenStartColumn << endl;
+                tokens.push_back(make_pair(type, "."));
             }
             else
             {
-                // 其余情况，报错非法字符
-                cout << "报错字符：" << c << endl;
+                cout << "报错字符：" << raw_c << " at Line " << currentLine << ", Column " << currentColumn << endl;
                 error(0);
-                exit(1);
+                exit(1); 
             }
-            break;
-        // 读取数字
+            break; // START 结束
+
         case INNUM:
-            if(isdigit(c))
+            if (isdigit(c))
             {
-                cur_num = cur_num * 10 + c - '0';
-                cur_num_len++;
-            }
-            else
-            {
-                // token识别完毕
-                currentState = START;
-                // 回退一个字符
-                i--;
-                // 超过最大允许数字长度
-                if(cur_num_len > MAXNUMLEN){
-                    error(25);  
+                if (cur_num_len >= MAXNUMLEN)
+                {
+                    error(25); /* 处理错误 */
                     exit(1);
                 }
-                
-                tokens.push_back(make_pair(number, to_string(cur_num)));
+                else
+                {
+                    cur_num = cur_num * 10 + (c - '0');
+                    cur_num_len++;
+                }
+            }
+            else
+            {
+                currentState = START;
+                string val = to_string(cur_num);
+                // --- 打印信息 ---
+                cout << "Token: (" << number << ", " << val << ") at Line " << tokenStartLine << ", Col " << tokenStartColumn << endl;
+                tokens.push_back(make_pair(number, val));
                 cur_num = 0;
                 cur_num_len = 0;
+                i--; // 回退
+                currentColumn--;
             }
-            break;
-        // 读取注释
+            break; // INNUM 结束
+
         case COMMENT:
-            if(c=='}'){
-                // 注释结束
+            if (raw_c == '}')
+            {
                 currentState = START;
             }
-            break;
-        // 读取标识符或关键字
+            break; // COMMENT 结束
+
         case INID:
-            if(isalpha(c)||isdigit(c)){
-                // 越界
-                if(cur_token_index>MAXIDLEN){
-                    error(26);
+            if (isalnum(c))
+            {
+                if (cur_token_index >= MAXIDLEN)
+                {
+                    error(26); /* 处理错误 */
                     exit(1);
                 }
-                cur_token[cur_token_index] = c;
-                cur_token_index++;
-            }else {
-                // token识别完毕
-                currentState = START;
-                // 回退一个字符
-                i--;
-                cur_token[cur_token_index] = '\0';
-                // 检查是否为关键字
-                if(isKeyword(cur_token)){
-                    tokens.push_back(make_pair( keywords.find(cur_token)->second,cur_token));
-                    // 对于终止关键字
-                    if(strcmp(cur_token,"end")==0){
-                        currentState = END;
-                    }
-                }else {
-                    // 不是关键字，则为普通标识符
-                    tokens.push_back(make_pair(identifier, cur_token));
+                else
+                {
+                    cur_token[cur_token_index++] = c;
                 }
-                
-                // 清理
+            }
+            else
+            {
+                currentState = START;
+                cur_token[cur_token_index] = '\0';
+                string tokenValue = cur_token;
+                string tokenType;
+                if (isKeyword(tokenValue))
+                {
+                    tokenType = keywords.find(tokenValue)->second;
+                    if (tokenValue == "end")
+                    {
+                        currentState = END;
+                    } 
+                }
+                else
+                {
+                    tokenType = identifier;
+                }
+                // --- 打印信息 ---
+                cout << "Token: (" << tokenType << ", " << tokenValue << ") at Line " << tokenStartLine << ", Col " << tokenStartColumn << endl;
+                tokens.push_back(make_pair(tokenType, tokenValue));
                 cleanTokenMem(cur_token, cur_token_index);
+                i--; // 回退
+                currentColumn--;
             }
-            break;
-        // 赋值语句
+            break; // INID 结束
+
         case INBECOMES:
-            if(c=='='){
+            if (c == '=')
+            {
                 currentState = BECOMES;
-            }else {
-                currentState = START;
-                // 回退一个字符
-                if (i > 0) i--;
             }
-            break;
-        // >
+            else
+            {
+                currentState = START;
+                i--; /* 回退 */
+                currentColumn--;
+            }
+            break; // INBECOMES 结束
+
         case GTR:
-            if(c=='='){
+            if (c == '=')
+            {
                 currentState = GEQ;
-            }else{
-                // token识别完毕
-                currentState = START;
-                if (i > 0) i--;    // 回退
-                tokens.push_back(make_pair(operators.find(">")->second, ">"));
             }
-            break;
-        // <
+            else
+            {
+                currentState = START;
+                string type = operators.find(">")->second;
+                // --- 打印信息 ---
+                cout << "Token: (" << type << ", " << ">" << ") at Line " << tokenStartLine << ", Col " << tokenStartColumn << endl;
+                tokens.push_back(make_pair(type, ">"));
+                i--; // 回退
+                currentColumn--;
+            }
+            break; // GTR 结束
+
         case LES:
-            if(c=='='){
+            if (c == '=')
+            {
                 currentState = LEQ;
-            }else if(c=='>'){
+            }
+            else if (c == '>')
+            {
                 currentState = NEQ;
             }
-            else {
-                // token识别完毕
+            else
+            {
                 currentState = START;
-                if (i > 0) i--;    // 回退
-                tokens.push_back(make_pair(operators.find("<")->second, "<"));
+                string type = operators.find("<")->second;
+                // --- 打印信息 ---
+                cout << "Token: (" << type << ", " << "<" << ") at Line " << tokenStartLine << ", Col " << tokenStartColumn << endl;
+                tokens.push_back(make_pair(type, "<"));
+                i--; // 回退
+                currentColumn--;
             }
-            break;
-        // 识别出完整的赋值操作符 :=
-        case BECOMES:
+            break; // LES 结束
+
+        case BECOMES: // 识别出 :=
             currentState = START;
-            i--;    //回退
+            // --- 打印信息 ---
+            cout << "Token: (" << operators.find(":=")->second << ", " << ":=" << ") at Line " << tokenStartLine << ", Col " << tokenStartColumn << endl;
             tokens.push_back(make_pair(operators.find(":=")->second, ":="));
+            i--; // 回退，因为 BECOMES 状态是在读到 '=' 后进入的，但 for 循环还会自增 i
+            currentColumn--;
             break;
-        // 识别出完整>=符号
-        case GEQ:
+
+        case GEQ: // 识别出 >=
             currentState = START;
-            i--;
+            // --- 打印信息 ---
+            cout << "Token: (" << operators.find(">=")->second << ", " << ">=" << ") at Line " << tokenStartLine << ", Col " << tokenStartColumn << endl;
             tokens.push_back(make_pair(operators.find(">=")->second, ">="));
+            i--; // 回退
+            currentColumn--;
             break;
-        // 识别出完整<=符号
-        case LEQ:
+
+        case LEQ: // 识别出 <=
             currentState = START;
-            i--;
+            // --- 打印信息 ---
+            cout << "Token: (" << operators.find("<=")->second << ", " << "<=" << ") at Line " << tokenStartLine << ", Col " << tokenStartColumn << endl;
             tokens.push_back(make_pair(operators.find("<=")->second, "<="));
+            i--; // 回退
+            currentColumn--;
             break;
-        // 识别出<>不等于符号
-        case NEQ:
+
+        case NEQ: // 识别出 <>
             currentState = START;
-            i--;
+            // --- 打印信息 ---
+            cout << "Token: (" << operators.find("<>")->second << ", " << "<>" << ") at Line " << tokenStartLine << ", Col " << tokenStartColumn << endl;
             tokens.push_back(make_pair(operators.find("<>")->second, "<>"));
+            i--; // 回退
+            currentColumn--;
             break;
-        // 终止符
-        case END:
-            // 终止符已经添加过了
-            if(c=='.'){
-                tokens.push_back(make_pair(delimiters.find(".")->second, "."));
-            }else {
-                i--;
+
+        case END: // 识别出 end 关键字后进入的状态
+            // 保持原有逻辑：在 end 之后如果遇到 '.'，则识别句点
+            if (c == '.')
+            {
+                string type = delimiters.find(".")->second;
+                // --- 打印信息 ---
+                // 注意：这里的起始位置是 '.' 的位置，不是 'end' 的位置
+                tokenStartLine = currentLine; // 更新句点的起始位置
+                tokenStartColumn = currentColumn;
+                cout << "Token: (" << type << ", " << "." << ") at Line " << tokenStartLine << ", Col " << tokenStartColumn << endl;
+                tokens.push_back(make_pair(type, "."));
             }
-            currentState = START;
-            break;
+            else
+            {
+                // 如果 end 后面不是 '.'，需要回退，让 '.' 或其他字符在 START 状态被处理
+                i--;
+                currentColumn--;
+            }
+            currentState = START; // 无论如何都回到 START
+            break;                // END 结束
+
+        } // switch(currentState) 结束
+
+        // --- 更新行号和列号 ---
+        if (raw_c == '\n')
+        {
+            currentLine++;
+            currentColumn = 1;
         }
-    }
+        else
+        {
+            currentColumn++;
+        }
+        // --- 行号列号更新结束 ---
+
+        // 移动到下一个字符 (如果前面没有 continue 或 i--)
+        i++;
+
+    } // for 循环结束
+
+    // --- 添加文件结束符 EOF Token 的打印信息 (但不加入返回列表) ---
+    cout << "Token: (EOF, ) at Line " << currentLine << ", Col " << currentColumn << endl;
+    // --- EOF Token 打印结束 ---
+
     // 词法分析结束
     cout << "Lexical analysis END." << endl;
-    return tokens;
+    return tokens; // 返回值类型和内容不变
 }

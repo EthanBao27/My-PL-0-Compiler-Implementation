@@ -6,7 +6,7 @@
 using namespace std;
 
 #define NRW 11 // number of reserved words 保留词数量
-#define MAXNUMLEN 14 // 数字最大位
+#define MAXNUMLEN 13 // 数字最大位
 #define MAXIDLEN 10 // 标识符最大长度
 
 /**
@@ -58,7 +58,8 @@ map<string, string> keywords = {
     {"read", "readsym"},
     {"var", "varsym"},
     {"while", "whilesym"},
-    {"write", "writesym"}
+    {"write", "writesym"},
+    {"then","thensym"}
 };
 
 // 标识符

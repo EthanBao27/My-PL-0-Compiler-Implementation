@@ -1,0 +1,1 @@
+const abcdefghijddaecsa=1;
