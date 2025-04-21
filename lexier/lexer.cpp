@@ -23,6 +23,8 @@ vector<pair<string, string>> lexer(const string &sourceCode)
     // --- 行号列号变量结束 ---
 
     int cur_num = 0;                    // 识别中的数字
+    float cur_float = 0.0;                // 识别小数字
+    int cur_float_index = 0;            // 小数点后几位
     int cur_num_len = 0;                // 识别中数字的长度
     char cur_token[MAXIDLEN + 1];       // 识别中的标识符or关键字
     int cur_token_index = 0;            // 识别中标识符or关键字的下标
@@ -72,7 +74,7 @@ vector<pair<string, string>> lexer(const string &sourceCode)
                 else
                 {
                     error(26); /* 处理错误，可能需要跳过 */
-                    exit(1);
+                    // exit(1);
                 }
             }
             else if (c == ':')
@@ -149,7 +151,7 @@ vector<pair<string, string>> lexer(const string &sourceCode)
             {
                 cout << "报错字符：" << raw_c << " at Line " << currentLine << ", Column " << currentColumn << endl;
                 error(0);
-                exit(1); 
+                // exit(1); 
             }
             break; // START 结束
 
@@ -159,16 +161,19 @@ vector<pair<string, string>> lexer(const string &sourceCode)
                 if (cur_num_len >= MAXNUMLEN)
                 {
                     error(25); /* 处理错误 */
-                    exit(1);
+                    // exit(1);
                 }
                 else
                 {
                     cur_num = cur_num * 10 + (c - '0');
                     cur_num_len++;
                 }
-            }
-            else
-            {
+            }else if(c=='.'){
+                // 读取小数点
+                currentState = INFLOAT;
+                cur_float = cur_num;
+
+            }else{
                 currentState = START;
                 string val = to_string(cur_num);
                 // --- 打印信息 ---
@@ -180,6 +185,34 @@ vector<pair<string, string>> lexer(const string &sourceCode)
                 currentColumn--;
             }
             break; // INNUM 结束
+
+        case INFLOAT:
+           if (isdigit(c))
+            {
+                if (cur_num_len >= MAXNUMLEN)
+                {
+                    error(25); /* 处理错误 */
+                    // exit(1);
+                }
+                else
+                {
+                    cur_float_index--;
+                    cur_float = cur_float + (c - '0') * powf(10, cur_float_index);
+                }
+            }else{
+                currentState = START;
+                string val = to_string(cur_float);
+                // --- 打印信息 ---
+                cout << "Token: (" << number << ", " << val << ") at Line " << tokenStartLine << ", Col " << tokenStartColumn << endl;
+                tokens.push_back(make_pair(number, val));
+                cur_num = 0;
+                cur_num_len = 0;
+                cur_float = 0.0;
+                cur_float_index=0;
+                i--; // 回退
+                currentColumn--;
+            } 
+            break;
 
         case COMMENT:
             if (raw_c == '}')
@@ -194,7 +227,7 @@ vector<pair<string, string>> lexer(const string &sourceCode)
                 if (cur_token_index >= MAXIDLEN)
                 {
                     error(26); /* 处理错误 */
-                    exit(1);
+                    // exit(1);
                 }
                 else
                 {

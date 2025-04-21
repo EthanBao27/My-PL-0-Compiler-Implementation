@@ -19,6 +19,8 @@ enum state
     START,
     // 读取数字序列
     INNUM,
+    // 读取小数
+    INFLOAT,
     // 读取标识符或关键字（字母开始）
     INID,
     // 读取赋值操作符 :=
@@ -53,6 +55,7 @@ map<string, string> keywords = {
     {"do", "dosym"},
     {"end", "endsym"},
     {"if", "ifsym"},
+    {"else","elsesym"},
     {"odd", "oddsym"},
     {"procedure", "proceduresym"},
     {"read", "readsym"},
@@ -128,7 +131,8 @@ const char* err_msg[] =
 /* 29 */    "",
 /* 30 */    "",
 /* 31 */    "",
-/* 32 */    "There are too many levels."
+/* 32 */    "There are too many levels.",
+/* 33 */    "invalid number:can't have letters in a number."
 };
 
 // 实用函数 (utils)

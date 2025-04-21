@@ -1,10 +1,10 @@
 var
 
-    x,y,z;
-
+   1x,x,y,z;
+。】、【
 begin
 
-    x := 10.123;
+    x := 10;
 
     y := -5;
 
@@ -12,9 +12,9 @@ begin
 
     if z > 3 then
 
-        write(x)
+        write(x)else
 
-    else
+    
 
         write(y);
 

@@ -6,8 +6,8 @@
 using namespace std;
 
 int main(){
-    ifstream inputFile("./tests/error_test01.txt");
-    ofstream outputFile("./out/error_test_output.txt");
+    ifstream inputFile("./tests/case05.txt");
+    ofstream outputFile("./out/case05_output.txt");
 
     if(!inputFile.is_open()||!outputFile.is_open()){
         cerr << "error:无法打开文件" << endl;

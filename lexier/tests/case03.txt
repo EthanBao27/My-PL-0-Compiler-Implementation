@@ -1,6 +1,6 @@
 var
 
-    b+c;
+    b,c;
 
 begin
 

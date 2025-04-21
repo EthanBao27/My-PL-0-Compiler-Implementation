@@ -13,7 +13,7 @@ procedure gcd;
 begin
     read(m);     
     read(n);
-    if m < n 
+    if m < n then 
         begin
             r := m;
             m := n;

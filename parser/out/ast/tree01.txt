@@ -1,0 +1,76 @@
+Program
+  Block
+    Var Declaration
+      VAR
+      IDENT: x
+      COMMA ','
+      IDENT: y
+      COMMA ','
+      IDENT: z
+      SEMICOLON ';'
+    Statement
+      Begin-End Block
+        BEGIN
+        Statement
+          Assignment
+            IDENT: x
+            BECOMES ':='
+            Expression
+              Term
+                Factor
+                  NUMBER: 10.123001
+        SEMICOLON ';'
+        Statement
+          Assignment
+            IDENT: y
+            BECOMES ':='
+            Expression
+              UnaryOp:-
+              Term
+                Factor
+                  NUMBER: 5
+        SEMICOLON ';'
+        Statement
+          Read Statement
+            READ
+            LPAREN '('
+            IDENT: z
+            RPAREN ')'
+        SEMICOLON ';'
+        Statement
+          If Statement
+            IF
+            Condition
+              Expression
+                Term
+                  Factor
+                    IDENT: z
+              CompareOp: >
+              Expression
+                Term
+                  Factor
+                    NUMBER: 3
+            THEN
+            Statement
+              Write Statement
+                WRITE
+                LPAREN '('
+                Expression
+                  Term
+                    Factor
+                      IDENT: x
+                RPAREN ')'
+            ELSE
+            Statement
+              Write Statement
+                WRITE
+                LPAREN '('
+                Expression
+                  Term
+                    Factor
+                      IDENT: y
+                RPAREN ')'
+        SEMICOLON ';'
+        Statement
+        END
+语法正确

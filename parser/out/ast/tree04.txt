@@ -1,0 +1,179 @@
+Program
+  Block
+    Var Declaration
+      VAR
+      IDENT: m
+      COMMA ','
+      IDENT: n
+      COMMA ','
+      IDENT: r
+      COMMA ','
+      IDENT: q
+      SEMICOLON ';'
+    Block
+      Statement
+        Begin-End Block
+          BEGIN
+          Statement
+            While Loop
+              WHILE
+              Condition
+                Expression
+                  Term
+                    Factor
+                      IDENT: r
+                CompareOp: #
+                Expression
+                  Term
+                    Factor
+                      NUMBER: 0
+              DO
+              Statement
+                Begin-End Block
+                  BEGIN
+                  Statement
+                    Assignment
+                      IDENT: q
+                      BECOMES ':='
+                      Expression
+                        Term
+                          Factor
+                            IDENT: m
+                          BinaryOp: /
+                          Factor
+                            IDENT: n
+                  SEMICOLON ';'
+                  Statement
+                    Assignment
+                      IDENT: r
+                      BECOMES ':='
+                      Expression
+                        Term
+                          Factor
+                            IDENT: m
+                        BinaryOp: -
+                        Term
+                          Factor
+                            IDENT: q
+                          BinaryOp: *
+                          Factor
+                            IDENT: n
+                  SEMICOLON ';'
+                  Statement
+                    Assignment
+                      IDENT: m
+                      BECOMES ':='
+                      Expression
+                        Term
+                          Factor
+                            IDENT: n
+                  SEMICOLON ';'
+                  Statement
+                    Assignment
+                      IDENT: n
+                      BECOMES ':='
+                      Expression
+                        Term
+                          Factor
+                            IDENT: r
+                  SEMICOLON ';'
+                  Statement
+                  END
+          END
+    Statement
+      Begin-End Block
+        BEGIN
+        Statement
+          Read Statement
+            READ
+            LPAREN '('
+            IDENT: m
+            RPAREN ')'
+        SEMICOLON ';'
+        Statement
+          Read Statement
+            READ
+            LPAREN '('
+            IDENT: n
+            RPAREN ')'
+        SEMICOLON ';'
+        Statement
+          If Statement
+            IF
+            Condition
+              Expression
+                Term
+                  Factor
+                    IDENT: m
+              CompareOp: <
+              Expression
+                Term
+                  Factor
+                    IDENT: n
+            THEN
+            Statement
+              Begin-End Block
+                BEGIN
+                Statement
+                  Assignment
+                    IDENT: r
+                    BECOMES ':='
+                    Expression
+                      Term
+                        Factor
+                          IDENT: m
+                SEMICOLON ';'
+                Statement
+                  Assignment
+                    IDENT: m
+                    BECOMES ':='
+                    Expression
+                      Term
+                        Factor
+                          IDENT: n
+                SEMICOLON ';'
+                Statement
+                  Assignment
+                    IDENT: n
+                    BECOMES ':='
+                    Expression
+                      Term
+                        Factor
+                          IDENT: r
+                SEMICOLON ';'
+                Statement
+                END
+        SEMICOLON ';'
+        Statement
+          Begin-End Block
+            BEGIN
+            Statement
+              Assignment
+                IDENT: r
+                BECOMES ':='
+                Expression
+                  Term
+                    Factor
+                      NUMBER: 1
+            SEMICOLON ';'
+            Statement
+              Procedure Call
+                CALL
+                IDENT: gcd
+            SEMICOLON ';'
+            Statement
+              Write Statement
+                WRITE
+                LPAREN '('
+                Expression
+                  Term
+                    Factor
+                      IDENT: m
+                RPAREN ')'
+            SEMICOLON ';'
+            Statement
+            END
+        SEMICOLON ';'
+        Statement
+        END
+语法正确

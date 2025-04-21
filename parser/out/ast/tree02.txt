@@ -1,0 +1,95 @@
+Program
+  Block
+    Const Declaration
+      CONST
+      IDENT: a
+      EQL '='
+      NUMBER: 10
+      SEMICOLON ';'
+    Var Declaration
+      VAR
+      IDENT: b
+      COMMA ','
+      IDENT: c
+      SEMICOLON ';'
+    Block
+      Var Declaration
+        VAR
+        IDENT: d
+        SEMICOLON ';'
+      Block
+        Var Declaration
+          VAR
+          IDENT: x
+          SEMICOLON ';'
+        Statement
+          Begin-End Block
+            BEGIN
+            Statement
+              Read Statement
+                READ
+                LPAREN '('
+                IDENT: x
+                RPAREN ')'
+            SEMICOLON ';'
+            Statement
+              Assignment
+                IDENT: d
+                BECOMES ':='
+                Expression
+                  Term
+                    Factor
+                      IDENT: x
+            SEMICOLON ';'
+            Statement
+              While Loop
+                WHILE
+                Condition
+                  Expression
+                    Term
+                      Factor
+                        IDENT: x
+                  CompareOp: #
+                  Expression
+                    Term
+                      Factor
+                        NUMBER: 0
+                DO
+                Statement
+                  Procedure Call
+                    CALL
+                    IDENT: p
+            SEMICOLON ';'
+            Statement
+            END
+      Statement
+        Begin-End Block
+          BEGIN
+          Statement
+            Write Statement
+              WRITE
+              LPAREN '('
+              Expression
+                Term
+                  Factor
+                    IDENT: d
+              RPAREN ')'
+          SEMICOLON ';'
+          Statement
+            Procedure Call
+              CALL
+              IDENT: q
+          SEMICOLON ';'
+          Statement
+          END
+    Statement
+      Begin-End Block
+        BEGIN
+        Statement
+          Procedure Call
+            CALL
+            IDENT: p
+        SEMICOLON ';'
+        Statement
+        END
+语法正确

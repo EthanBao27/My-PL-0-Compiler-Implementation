@@ -1,0 +1,62 @@
+Program
+  Block
+    Var Declaration
+      VAR
+      IDENT: b
+      COMMA ','
+      IDENT: c
+      SEMICOLON ';'
+    Statement
+      Begin-End Block
+        BEGIN
+        Statement
+          Read Statement
+            READ
+            LPAREN '('
+            IDENT: b
+            RPAREN ')'
+        SEMICOLON ';'
+        Statement
+          While Loop
+            WHILE
+            Condition
+              Expression
+                Term
+                  Factor
+                    IDENT: b
+              CompareOp: #
+              Expression
+                Term
+                  Factor
+                    NUMBER: 0
+            DO
+            Statement
+              Begin-End Block
+                BEGIN
+                Statement
+                  Procedure Call
+                    CALL
+                    IDENT: p
+                SEMICOLON ';'
+                Statement
+                  Write Statement
+                    WRITE
+                    LPAREN '('
+                    Expression
+                      Term
+                        Factor
+                          NUMBER: 2
+                        BinaryOp: *
+                        Factor
+                          IDENT: c
+                    RPAREN ')'
+                SEMICOLON ';'
+                Statement
+                  Read Statement
+                    READ
+                    LPAREN '('
+                    IDENT: b
+                    RPAREN ')'
+                END
+        END
+语法正确
